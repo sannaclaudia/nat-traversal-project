@@ -20,7 +20,20 @@ Wireguard uses the following cryptographic primitives:
 ### NAT
 Network Address Translation (NAT) is a technique used to modify the IP address and/or port number of packets as they pass through a router or firewall. NAT is commonly used to allow multiple devices on a private network to share a single public IP address. NAT can cause problems for VPN protocols, as it can change the source and destination IP addresses and port numbers of the packets, making it difficult for the peers to communicate with each other. Wireguard uses a technique called "persistent keepalive" to keep the connection alive and to traverse NATs.
 #### NAT Types
+There are two macro-categories of NATs:
+- Basic NAT (one-to-one), mainly employed to interconnect IP networks with incompatible addresses. This type of NAT will not be covered in this laboratory experience.
+- One-to-many NAT, which maps multiple private hosts, each one having a private IP address, to one - sometimes public - external IP address. The aim is to have a singular public IP address for multiple devices in order to tackle IPv4 address space exhaustion. For TCP segments and UDP datagrams, as outgoing traffic passes throughout the NAT device (usually, a router), intended to reach external destinations, the device replaces the private source IP address in each packet header with its own public IP address and the source port with another one, later used to correctly forward incoming packets. Indeed, as incoming traffic reaches the NAT device, it replaces back the original source IP address and port in the destination fields. Therefore, the device performs a kind of connection tracking. 
+This process is sometimes more strictly named network address and port translation (NAPT). 
+
+There are many types of One-to-many NATs:
+- Endpoint-Independent NAT, Full Cone NAT: Once an internal address (iAddr:iPort) is mapped to an external address (eAddr:ePort), any packets from iAddr:iPort are sent through eAddr:ePort. Any external host can send packets to iAddr:iPort by sending packets to eAddr:ePort. This the simplest type of NAPT.
+- Address-Dependent NAT, Restricted Cone NAT: as far as outgoing traffic is concerned, the behaviour is the same as Full Cone NAT. However, incoming traffic gets forwarded to the internal hosts only if iAddr:iPort has previously sent a packet to hAddr:any. Any means the port number doesn't matter.
+- Address and Port-Dependent NAT, Port Restricted Cone NAT: same as Restricted Cone NAT but the port numbers matter too.
+- Address and Port-Dependent NAT, Symmetric NAT: The combination of one internal IP address and a destination IP address and port is mapped to a single unique external source IP address and port; if the same internal host sends a packet even with the same source address and port but to a different destination, a different mapping is used.
+Only an external host that receives a packet from an internal host can send a packet back.
+
 #### NAT Traversal
+When hosts belonging to different LANs try to communicate, they cannot do it directly as they were not assigned publicly routable IP addresses. One way to solve this problem is to use port forwarding and address incoming packets to the router public IP address. However, this is impractical, as it requires user configuration, it is not dynamic (UPnP deals with this issue but brings its own problems) and it is not always feasible, especially on mobile networks, where ISPs deploy their own NATs.
 
 ### Wireshark
 Wireshark is a network protocol analyzer that allows you to capture and analyze the packets exchanged between the peers. Wireshark can be used to inspect the packets at different layers of the OSI model, including the application layer, transport layer and network layer. Wireshark can also be used to filter the packets based on different criteria, such as IP address, port number and protocol.
