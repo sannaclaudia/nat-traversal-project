@@ -1,0 +1,26 @@
+[package]
+name = "relay-server-example"
+version = "0.1.0"
+edition = "2021"
+publish = false
+license = "MIT"
+
+[package.metadata.release]
+release = false
+
+[dependencies]
+clap = { version = "4.5.6", features = ["derive"] }
+tokio = { version = "1.37.0", features = ["full"] }
+futures = "0.3.31"
+libp2p = { version = "0.55.0", features = [
+    "tokio",
+    "noise",
+    "macros",
+    "ping",
+    "tcp",
+    "identify",
+    "yamux",
+    "relay",
+    "quic",
+] }
+tracing-subscriber = { version = "0.3.19", features = ["env-filter"] }
