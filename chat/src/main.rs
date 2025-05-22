@@ -9,7 +9,6 @@ use libp2p::{
     swarm::{NetworkBehaviour, SwarmEvent},
     tcp, yamux, PeerId,
 };
-use rand;
 use std::{error::Error, iter};
 use tokio::{
     io::{self, AsyncBufReadExt, BufReader},
@@ -30,7 +29,7 @@ struct Opts {
     #[arg(long)]
     relay_address: Multiaddr,
 
-    /// Remote PeerId (only in dial mode)
+    /// Remote PeerId (compulsory only in dial mode)
     #[arg(long)]
     remote_peer_id: Option<PeerId>,
 
@@ -66,11 +65,13 @@ struct Behaviour {
     chat: request_response::Behaviour<ChatCodec>,
 }
 
+#[allow(dead_code)]
 #[derive(Debug)]
 enum Event {
     Relay(relay::client::Event),
     Ping(ping::Event),
-    Identify(identify::Event),
+    // since identify::Event is much larger than the rest, we box it
+    Identify(Box<identify::Event>),
     Dcutr(dcutr::Event),
     Chat(request_response::Event<ChatRequest, ChatResponse>),
 }
@@ -87,7 +88,7 @@ impl From<ping::Event> for Event {
 }
 impl From<identify::Event> for Event {
     fn from(e: identify::Event) -> Self {
-        Event::Identify(e)
+        Event::Identify(Box::new(e))
     }
 }
 impl From<dcutr::Event> for Event {
@@ -103,11 +104,9 @@ impl From<request_response::Event<ChatRequest, ChatResponse>> for Event {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
+    tracing_subscriber::fmt::init();
     let opts = Opts::parse();
 
-    //
-    // === Build the Swarm with a fresh new identity ===
-    //
     let transport =
         libp2p::SwarmBuilder::with_existing_identity(generate_ed25519(opts.secret_key_seed))
             // use Tokio executor
@@ -220,13 +219,11 @@ async fn main() -> Result<(), Box<dyn Error>> {
                         }
                     }
                     evt => {
-                        // failures, responses sent, etc.
                         tracing::debug!("Chat event: {:?}", evt);
                     }
                 },
                 other => {
-                    // Handle other events
-                    //println!("Swarm event: {:?}", other);
+                    tracing::debug!("Swarm event: {:?}", other);
                 }
             },
 
