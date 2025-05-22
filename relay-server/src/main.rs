@@ -47,6 +47,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
     // Create a static known PeerId based on given secret
     let local_key: identity::Keypair = generate_ed25519(opt.secret_key_seed);
 
+    println!("Local peer id: {:?}", local_key.public().to_peer_id());
+
     let mut swarm = libp2p::SwarmBuilder::with_existing_identity(local_key)
         .with_tokio()
         .with_tcp(
