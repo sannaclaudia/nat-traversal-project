@@ -1,0 +1,40 @@
+[package]
+name = "chat"
+version = "0.1.0"
+edition = "2021"
+publish = false
+license = "MIT"
+
+[package.metadata.release]
+release = false
+
+[dependencies]
+async-trait = "0.1.88"
+clap = { version = "4.5.6", features = ["derive"] }
+futures = "0.3.31"
+futures-timer = "3.0"
+libp2p = { version = "0.55.0", features = [
+    "dns",
+    "dcutr",
+    "identify",
+    "macros",
+    "noise",
+    "ping",
+    "quic",
+    "relay",
+    "rendezvous",
+    "tcp",
+    "tokio",
+    "yamux",
+    "request-response",
+] }
+rand = "0.9.1"
+tokio = { version = "1.38", features = [
+    "macros",
+    "net",
+    "rt",
+    "signal",
+    "io-std",
+] }
+tracing = "0.1.41"
+tracing-subscriber = { version = "0.3.19", features = ["env-filter"] }
